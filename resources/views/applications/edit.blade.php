@@ -1,5 +1,54 @@
 @extends('layouts.app')
 @section('page_title', 'Edit Application Review')
 @section('content')
-<form method="POST" action="{{ route('applications.update', $application) }}">@csrf @method('PUT')<div class="card"><div class="card-header d-flex justify-content-between align-items-center"><h3 class="card-title">Edit Application Review</h3><span class="badge text-bg-{{ $application->status === 'approved' ? 'success' : ($application->status === 'pending' ? 'warning' : 'secondary') }} text-capitalize">{{ $application->application_number }}</span></div><div class="card-body"><div class="row g-3"><div class="col-md-6"><label class="form-label">Application Type</label><select name="type" class="form-select">@foreach(['new' => 'New Registration', 'renewal' => 'Renewal', 'replacement' => 'Replacement', 'update' => 'Profile Update'] as $value => $label)<option value="{{ $value }}" @selected(old('type', $application->type) === $value)>{{ $label }}</option>@endforeach</select></div><div class="col-md-6"><label class="form-label">Review Status</label><select name="status" class="form-select">@foreach(['draft' => 'Draft', 'pending' => 'Pending', 'under_review' => 'Under Review', 'approved' => 'Approved', 'rejected' => 'Rejected'] as $value => $label)<option value="{{ $value }}" @selected(old('status', $application->status) === $value)>{{ $label }}</option>@endforeach</select></div><div class="col-12"><label class="form-label">Review Notes</label><textarea class="form-control" name="notes" rows="6" placeholder="Record review findings, required documents, or approval remarks.">{{ old('notes', $application->notes) }}</textarea></div></div></div><div class="card-footer text-end d-flex justify-content-between"><a href="{{ route('applications.show', $application) }}" class="btn btn-outline-secondary d-flex align-items-center gap-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Cancel</a><button class="btn btn-primary d-flex align-items-center gap-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save Review</button></div></div></form>
+<form method="POST" action="{{ route('applications.update', $application) }}">
+    @csrf
+    @method('PUT')
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title">Edit Application Review</h3>
+            <span class="badge text-bg-{{ $application->status === 'approved' ? 'success' : ($application->status === 'pending' ? 'warning' : 'secondary') }} text-capitalize">{{ $application->application_number }}</span>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Application Type</label>
+                    <select name="type" class="form-select">
+                        @foreach(['new' => 'New Registration', 'renewal' => 'Renewal', 'replacement' => 'Replacement', 'update' => 'Profile Update'] as $value => $label)
+                            <option value="{{ $value }}" {{ old('type', $application->type) === $value ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Review Status</label>
+                    <select name="status" class="form-select">
+                        @foreach(['draft' => 'Draft', 'pending' => 'Pending', 'under_review' => 'Under Review', 'approved' => 'Approved', 'rejected' => 'Rejected'] as $value => $label)
+                            <option value="{{ $value }}" {{ old('status', $application->status) === $value ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Review Notes</label>
+                    <textarea class="form-control" name="notes" rows="6" placeholder="Record review findings, required documents, or approval remarks.">{{ old('notes', $application->notes) }}</textarea>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer text-end d-flex justify-content-between">
+            <a href="{{ route('applications.show', $application) }}" class="btn btn-outline-secondary d-flex align-items-center gap-2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Cancel
+            </a>
+            <button class="btn btn-primary d-flex align-items-center gap-2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                    <polyline points="17 21 17 13 7 13 7 21"/>
+                    <polyline points="7 3 7 8 15 8"/>
+                </svg>
+                Save Review
+            </button>
+        </div>
+    </div>
+</form>
 @endsection

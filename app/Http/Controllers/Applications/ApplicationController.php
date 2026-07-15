@@ -7,6 +7,7 @@ use App\Models\PwdApplication;
 use App\Models\PwdRegistrant;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class ApplicationController extends Controller
@@ -37,6 +38,14 @@ class ApplicationController extends Controller
             'notes' => ['nullable', 'string'],
         ]);
 
+        // Log the incoming data for debugging
+        \Log::info('Application update request', [
+            'application_id' => $application->id,
+            'request_data' => $request->all(),
+            'validated_data' => $data,
+            'current_status' => $application->status,
+        ]);
+
         if ($data['status'] === 'approved' && ! $application->approved_at) {
             $data['approved_at'] = now();
             $data['reviewed_at'] = now();
@@ -47,6 +56,11 @@ class ApplicationController extends Controller
         }
 
         $application->update($data);
+
+        \Log::info('Application updated successfully', [
+            'application_id' => $application->id,
+            'new_status' => $application->fresh()->status,
+        ]);
 
         return to_route('applications.show', $application)->with('success', 'Application updated successfully.');
     }
