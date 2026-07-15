@@ -1,0 +1,92 @@
+@extends('layouts.app')
+@section('page_title', 'Applications')
+@section('content')
+    @if (session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Application Queue</h3>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Application No.</th>
+                                    <th>Registrant</th>
+                                    <th>Type</th>
+                                    <th>Submitted</th>
+                                    <th>Status</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($applications as $application)
+                                    <tr>
+                                        <td>{{ $application->application_number }}</td>
+                                        <td>{{ $application->registrant->last_name }},
+                                            {{ $application->registrant->first_name }}</td>
+                                        <td class="text-capitalize">{{ $application->type }}</td>
+                                        <td>{{ optional($application->submitted_at)->format('M d, Y') ?? '—' }}</td>
+                                        <td><span
+                                                class="badge text-bg-{{ $application->status === 'approved' ? 'success' : ($application->status === 'pending' ? 'warning' : 'secondary') }} text-capitalize">{{ str_replace('_', ' ', $application->status) }}</span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-2">
+                                                <a class="btn btn-sm btn-outline-primary"
+                                                    href="{{ route('applications.show', $application) }}">Review</a>
+                                                <form method="POST"
+                                                    action="{{ route('applications.destroy', $application) }}"
+                                                    onsubmit="return confirm('Archive this application?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button class="btn btn-sm btn-outline-danger">Archive</button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted py-4">No applications found.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer">{{ $applications->links() }}</div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">All Registrants</h3>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        @forelse($registrants as $registrant)
+                            <a class="list-group-item list-group-item-action"
+                                href="{{ route('registrants.show', $registrant) }}">
+                                <div class="d-flex justify-content-between gap-2">
+                                    <div>
+                                        <div class="fw-semibold">{{ $registrant->first_name }}
+                                            {{ $registrant->last_name }}</div>
+                                        <div class="small text-muted">{{ $registrant->pwd_id_number }}</div>
+                                    </div>
+                                    <span
+                                        class="badge text-bg-light text-muted">{{ $registrant->barangay->name ?? '—' }}</span>
+                                </div>
+                            </a>
+                        @empty
+                            <div class="p-4 text-center text-muted">No registrants found.</div>
+                        @endforelse
+                    </div>
+                </div>
+                <div class="card-footer">{{ $registrants->links() }}</div>
+            </div>
+        </div>
+    </div>
+@endsection
