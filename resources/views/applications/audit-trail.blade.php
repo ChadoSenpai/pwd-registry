@@ -39,11 +39,11 @@
                     <tbody>
                         @forelse($auditTrail as $entry)
                             <tr>
-                                <td class="fw-semibold">{{ $entry['action'] }}</td>
-                                <td>{{ $entry['label'] }}</td>
-                                <td>{{ $entry['registrant'] }}</td>
-                                <td>{{ $entry['time'] }}</td>
-                                <td>{{ $entry['user'] }}</td>
+                                <td class="fw-semibold">{{ $entry->action }}</td>
+                                <td>{{ $entry->label ?? '-' }}</td>
+                                <td>{{ $entry->registrant_name ?? ($entry->application?->registrant?->full_name ?? '-') }}</td>
+                                <td>{{ $entry->created_at->format('M d, Y h:i A') }}</td>
+                                <td>{{ $entry->user?->name ?? 'System' }}</td>
                             </tr>
                         @empty
                             <tr>
@@ -53,6 +53,9 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+        <div class="card-footer">
+            {{ $auditTrail->links() }}
         </div>
     </div>
 @endsection

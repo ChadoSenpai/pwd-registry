@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Applications;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditTrail;
 use App\Models\PwdApplication;
 use App\Models\PwdRegistrant;
 use Illuminate\Http\RedirectResponse;
@@ -46,6 +47,9 @@ class ApplicationController extends Controller
             'current_status' => $application->status,
         ]);
 
+        $oldStatus = $application->status;
+        $oldType = $application->type;
+
         if ($data['status'] === 'approved' && ! $application->approved_at) {
             $data['approved_at'] = now();
             $data['reviewed_at'] = now();
@@ -56,6 +60,25 @@ class ApplicationController extends Controller
         }
 
         $application->update($data);
+
+        // Create audit trail entry
+        AuditTrail::create([
+            'pwd_application_id' => $application->id,
+            'user_id' => $request->user()->id,
+            'action' => 'Updated',
+            'label' => 'Application status updated',
+            'registrant_name' => $application->registrant->full_name,
+            'old_values' => [
+                'status' => $oldStatus,
+                'type' => $oldType,
+            ],
+            'new_values' => [
+                'status' => $application->status,
+                'type' => $application->type,
+            ],
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
 
         \Log::info('Application updated successfully', [
             'application_id' => $application->id,
@@ -68,6 +91,17 @@ class ApplicationController extends Controller
     public function destroy(PwdApplication $application): RedirectResponse
     {
         $application->delete();
+
+        // Create audit trail entry for archiving
+        AuditTrail::create([
+            'pwd_application_id' => $application->id,
+            'user_id' => auth()->id(),
+            'action' => 'Archived',
+            'label' => 'Application moved to archive',
+            'registrant_name' => $application->registrant->full_name,
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
 
         return to_route('applications.index')->with('success', 'Application was moved to the archive.');
     }
